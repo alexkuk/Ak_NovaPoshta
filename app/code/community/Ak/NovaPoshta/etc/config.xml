@@ -29,4 +29,16 @@
             </novaposhta_setup>
         </resources>
     </global>
+    <default>
+        <carriers>
+            <novaposhta>
+                <active>0</active>
+                <sallowspecific>1</sallowspecific>
+                <specificcountry>UA</specificcountry>
+                <model>novaposhta/carrier_novaPoshta</model>
+                <title>Новая Почта</title>
+                <specificerrmsg>Этот способ доставки на текущий момент не доступен. Если вы желаете, чтобы мы доставили заказ Новой Почтой, обратитесь к менеджеру интернет-магазина.</specificerrmsg>
+            </novaposhta>
+        </carriers>
+    </default>
 </config>
