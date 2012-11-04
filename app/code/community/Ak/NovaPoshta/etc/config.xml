@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Ak_NovaPoshta>
+            <version>0.1.0</version>
+        </Ak_NovaPoshta>
+    </modules>
+    <global>
+        <models>
+            <novaposhta>
+                <class>Ak_NovaPoshta_Model</class>
+            </novaposhta>
+        </models>
+        <blocks>
+            <novaposhta>
+                <class>Ak_NovaPoshta_Block</class>
+            </novaposhta>
+        </blocks>
+        <helpers>
+            <novaposhta>
+                <class>Ak_NovaPoshta_Helper</class>
+            </novaposhta>
+        </helpers>
+        <resources>
+            <novaposhta_setup>
+                <setup>
+                    <module>Ak_NovaPoshta</module>
+                </setup>
+            </novaposhta_setup>
+        </resources>
+    </global>
+</config>
