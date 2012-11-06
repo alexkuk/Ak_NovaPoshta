@@ -17,12 +17,18 @@ class Ak_NovaPoshta_Model_Carrier_NovaPoshta
             return false;
         }
 
+        /** @var $result Mage_Shipping_Model_Rate_Result */
         $result = Mage::getModel('shipping/rate_result');
 
-        $shippingPrice = 1.00; // dummy price
+        $shippingPrice = $this->_getDeliveryPriceByWeight($request->getPackageWeight());
+        if ($shippingPrice <= 0) {
+            return $result;
+        }
+
         $warehouseId = 1; // dummy warehouse ID
         $warehouseName = 'Склад №1'; // dummy warehouse name
 
+        /** @var $method Mage_Shipping_Model_Rate_Result_Method */
         $method = Mage::getModel('shipping/rate_result_method');
         $method->setCarrier($this->_code)
             ->setCarrierTitle($this->getConfigData('name'))
@@ -49,5 +55,42 @@ class Ak_NovaPoshta_Model_Carrier_NovaPoshta
     public function isTrackingAvailable()
     {
         return true;
+    }
+
+    /**
+     * @return array
+     */
+    protected function _getWeightPriceMap()
+    {
+        $weightPriceMap = $this->getConfigData('weight_price');
+        if (empty($weightPriceMap)) {
+            return array();
+        }
+
+        return unserialize($weightPriceMap);
+    }
+
+    /**
+     * @param $packageWeight
+     *
+     * @return float
+     */
+    protected function _getDeliveryPriceByWeight($packageWeight)
+    {
+        $weightPriceMap = $this->_getWeightPriceMap();
+        $resultingPrice = 0.00;
+        if (empty($weightPriceMap)) {
+            return $resultingPrice;
+        }
+
+        $minimumWeight = 1000000000;
+        foreach ($weightPriceMap as $weightPrice) {
+            if ($packageWeight <= $weightPrice['weight'] && $weightPrice['weight'] <= $minimumWeight) {
+                $minimumWeight = $weightPrice['weight'];
+                $resultingPrice = $weightPrice['price'];
+            }
+        }
+
+        return $resultingPrice;
     }
 }

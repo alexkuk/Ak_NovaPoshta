@@ -64,6 +64,15 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </specificerrmsg>
+                        <weight_price translate="label">
+                            <label>Shipping price</label>
+                            <frontend_model>novaposhta/config_field_weightPrice</frontend_model>
+                            <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </weight_price>
                     </fields>
                 </novaposhta>
             </groups>

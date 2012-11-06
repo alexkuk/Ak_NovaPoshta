@@ -32,11 +32,17 @@
     <default>
         <carriers>
             <novaposhta>
+                <!-- disabled by default not to propose unconfigured shipping method to customer -->
                 <active>0</active>
+                <!-- allow only for specific countries flag -->
                 <sallowspecific>1</sallowspecific>
+                <!-- allow only for Ukraine -->
                 <specificcountry>UA</specificcountry>
+                <!-- carrier model -->
                 <model>novaposhta/carrier_novaPoshta</model>
+                <!-- carrier title -->
                 <title>Новая Почта</title>
+                <!-- error message -->
                 <specificerrmsg>Этот способ доставки на текущий момент не доступен. Если вы желаете, чтобы мы доставили заказ Новой Почтой, обратитесь к менеджеру интернет-магазина.</specificerrmsg>
             </novaposhta>
         </carriers>
