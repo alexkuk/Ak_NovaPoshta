@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<config>
+    <menu>
+         <sales>
+            <children>
+                <novaposhta translate="title" module="novaposhta">
+                    <sort_order>200</sort_order>
+                    <title>Nova Poshta</title>
+                    <children>
+                        <warehouses translate="title" module="novaposhta">
+                            <sort_order>10</sort_order>
+                            <title>Warehouses</title>
+                            <action>novaposhta/warehouses/</action>
+                        </warehouses>
+                    </children>
+                </novaposhta>
+            </children>
+         </sales>
+    </menu>
+    <acl>
+        <resources>
+            <admin>
+                <children>
+                    <sales>
+                        <children>
+                            <novaposhta translate="title" module="novaposhta">
+                                <title>Nova Poshta</title>
+                                <sort_order>200</sort_order>
+                                <children>
+                                    <warehouses translate="title" module="novaposhta">
+                                        <sort_order>10</sort_order>
+                                        <title>Warehouses</title>
+                                    </warehouses>
+                                </children>
+                            </novaposhta>
+                        </children>
+                    </sales>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>
