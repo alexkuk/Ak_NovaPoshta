@@ -64,12 +64,6 @@ class Ak_NovaPoshta_Block_Adminhtml_Warehouses_Grid extends Mage_Adminhtml_Block
         return parent::_prepareColumns();
     }
 
-    protected function _afterLoadCollection()
-    {
-        $this->getCollection()->walk('afterLoad');
-        parent::_afterLoadCollection();
-    }
-
     public function getRowUrl($row)
     {
         return false;
