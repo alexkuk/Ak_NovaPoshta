@@ -43,13 +43,13 @@
     </global>
     <admin>
         <routers>
-            <novaposhta>
-                <use>admin</use>
+            <adminhtml>
                 <args>
-                    <module>Ak_NovaPoshta</module>
-                    <frontName>novaposhta</frontName>
+                    <modules>
+                        <Ak_NovaPoshta_Adminhtml before="Mage_Adminhtml">Ak_NovaPoshta_Adminhtml</Ak_NovaPoshta_Adminhtml>
+                    </modules>
                 </args>
-            </novaposhta>
+            </adminhtml>
         </routers>
     </admin>
     <crontab>

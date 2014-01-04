@@ -11,7 +11,7 @@ class Ak_NovaPoshta_Helper_Data extends Mage_Core_Helper_Abstract
     public function log($string)
     {
         if ($this->getStoreConfig('enable_log')) {
-            Mage::log($string, null, $this->_logFile);
+            Mage::log($string, null, $this->_logFile, true);
         }
         return $this;
     }
