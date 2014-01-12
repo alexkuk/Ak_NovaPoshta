@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Ak_NovaPoshta>
-            <version>0.1.1</version>
+            <version>0.1.2</version>
         </Ak_NovaPoshta>
     </modules>
     <global>
@@ -20,6 +20,9 @@
                     <warehouse>
                         <table>novaposhta_warehouse</table>
                     </warehouse>
+                    <novaposhta_quote_address>
+                        <table>novaposhta_quote_address</table>
+                    </novaposhta_quote_address>
                 </entities>
             </novaposhta_resource>
         </models>
@@ -40,6 +43,35 @@
                 </setup>
             </novaposhta_setup>
         </resources>
+        <events>
+            <sales_quote_address_collection_load_after>
+                <observers>
+                    <novaposhta_load_addres_collection_data>
+                        <type>singleton</type>
+                        <class>novaposhta/observer</class>
+                        <method>loadAddressCollectionData</method>
+                    </novaposhta_load_addres_collection_data>
+                </observers>
+            </sales_quote_address_collection_load_after>
+            <sales_quote_address_save_after>
+                <observers>
+                    <novaposhta_save_addres_data>
+                        <type>singleton</type>
+                        <class>novaposhta/observer</class>
+                        <method>saveAddressData</method>
+                    </novaposhta_save_addres_data>
+                </observers>
+            </sales_quote_address_save_after>
+            <sales_quote_address_load_after>
+                <observers>
+                    <novaposhta_load_addres_data>
+                        <type>singleton</type>
+                        <class>novaposhta/observer</class>
+                        <method>loadAddressData</method>
+                    </novaposhta_load_addres_data>
+                </observers>
+            </sales_quote_address_load_after>
+        </events>
     </global>
     <admin>
         <routers>
@@ -64,6 +96,27 @@
             </novaposhta_import_city_and_warehouse>
         </jobs>
     </crontab>
+    <frontend>
+        <routers>
+            <novaposhta>
+                <use>standard</use>
+                <args>
+                    <module>Ak_NovaPoshta</module>
+                    <frontName>novaposhta</frontName>
+                </args>
+            </novaposhta>
+        </routers>
+        <secure_url>
+            <novaposhta_checkout>/novaposhta/checkout</novaposhta_checkout>
+        </secure_url>
+        <layout>
+            <updates>
+                <novaposhta>
+                    <file>novaposhta.xml</file>
+                </novaposhta>
+            </updates>
+        </layout>
+    </frontend>
     <default>
         <carriers>
             <novaposhta>

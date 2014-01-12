@@ -21,12 +21,9 @@ class Ak_NovaPoshta_Model_Carrier_NovaPoshta
         $result = Mage::getModel('shipping/rate_result');
 
         $shippingPrice = $this->_getDeliveryPriceByWeight($request->getPackageWeight());
-        if ($shippingPrice <= 0) {
-            return $result;
-        }
 
-        $warehouseId = 1; // dummy warehouse ID
-        $warehouseName = 'Склад №1'; // dummy warehouse name
+        $warehouseId   = 0;
+        $warehouseName = 'Доставка по Украине';
 
         /** @var $method Mage_Shipping_Model_Rate_Result_Method */
         $method = Mage::getModel('shipping/rate_result_method');

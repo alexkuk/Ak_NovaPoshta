@@ -1,0 +1,52 @@
+<script type="text/javascript">
+    var NovaPoshta = Class.create({
+        initialize: function() {
+            this.bind('click', /^s_method.+$/i, this.onShippingChange);
+        },
+        bind: function(eventType, elementIdRegExp, cb) {
+            document.addEventListener(eventType, function (event) {
+                var el = event.target
+                    , found;
+                while (el && !(found = el.id.match(elementIdRegExp))) {
+                    el = el.parentElement;
+                }
+                if (found) {
+                    cb.call(this, el, event);
+                }
+            }.bind(this));
+        },
+        onShippingChange: function(el, event) {
+            var hideForm = true;
+            $$('#checkout-shipping-method-load input[type=radio]').each(function(el){
+                if ('s_method_novaposhta_warehouse_0' == el.id && el.checked) {
+                    hideForm = false;
+                    this.showForm(el.parentNode);
+                }
+            }.bind(this));
+
+            if(hideForm) {
+                this.hideForm();
+            }
+        },
+        showForm: function(formContainer) {
+            new Ajax.Request('<?php echo $this->getUrl('novaposhta/checkout/form')?>', {
+                onSuccess: function(response) {
+                    var currentForm = Element.select(formContainer, '#novaposhta-form')[0];
+                    if (currentForm) {
+                        Element.remove(currentForm);
+                    }
+                    Element.insert(formContainer, {'after':response.responseText});
+                }
+            });
+        },
+        hideForm: function () {
+            if ($('novaposhta-form')) {
+                Element.remove('novaposhta-form');
+            }
+        }
+    });
+
+    new NovaPoshta();
+
+
+</script>
