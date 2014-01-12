@@ -16,7 +16,7 @@ class Mage_Shell_Novaposhta_Import
      */
     public function run()
     {
-        Mage::getModel('novaposhta/import')->runWarehouseAndCityMassImport();
+        Mage::getModel('novaposhta/import')->run();
 
         return $this;
     }

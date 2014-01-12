@@ -21,7 +21,7 @@ class Ak_NovaPoshta_Adminhtml_Novaposhta_WarehousesController extends Mage_Admin
     public function synchronizeAction()
     {
         try {
-            Mage::getModel('novaposhta/import')->runWarehouseAndCityMassImport();
+            Mage::getModel('novaposhta/import')->run();
             $this->_getSession()->addSuccess($this->__('City and Warehouse API synchronization finished'));
         }
         catch (Exception $e) {
