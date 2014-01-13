@@ -1,18 +1,11 @@
 <?php
 class Ak_NovaPoshta_Model_Import
 {
-    /** @var int Number of objects to save in one mysql statement when saving cities */
-    protected $_bulkSizeCity = 200;
+    /** @var  array */
+    protected $_existingCities;
 
-    /**
-     * with higher value I got segfault error (see http://framework.zend.com/issues/browse/ZF-11249)
-     * @var int Number of objects to save in one mysql statement when saving warehouses
-     */
-    protected $_bulkSizeWarehouse = 35;
-
-    protected $_exisitngCities;
-
-    protected $_exisitngWarehouses;
+    /** @var  array */
+    protected $_existingWarehouses;
 
     protected $_dataMapCity = array(
         'id' => 'id',
@@ -42,7 +35,7 @@ class Ak_NovaPoshta_Model_Import
      * @throws Exception
      * @return Ak_NovaPoshta_Model_Import
      */
-    public function runWarehouseAndCityMassImport()
+    public function run()
     {
         $apiKey = Mage::helper('novaposhta')->getStoreConfig('api_key');
         $apiUrl = Mage::helper('novaposhta')->getStoreConfig('api_url');
@@ -64,10 +57,9 @@ class Ak_NovaPoshta_Model_Import
             $warehouses = $apiClient->getWarehouses();
             $this->_importWarehouses($warehouses);
             Mage::helper('novaposhta')->log('End warehouse import');
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             Mage::logException($e);
-            Mage::helper('novaposhta')->log("Exception: \n" . $e->__toString());
+            Mage::helper('novaposhta')->log("Exception: \n" . $e->getMessage());
             throw $e;
         }
 
@@ -75,34 +67,42 @@ class Ak_NovaPoshta_Model_Import
     }
 
     /**
-     * @param SimpleXMLElement $cities
-     *
-     * @throws Exception
+     * @param array $cities
      * @return bool
+     * @throws Exception
      */
-    protected function _importCities(SimpleXMLElement $cities)
+    protected function _importCities(array $cities)
     {
         if (empty($cities)) {
             Mage::helper('novaposhta')->log('No city with warehouses received');
             throw new Exception('No city with warehouses received');
         }
 
+        $tableName  = Mage::getSingleton('core/resource')->getTableName('novaposhta_city');
+        $connection = $this->_getConnection();
+
         $cities = $this->_applyMap($cities, $this->_dataMapCity);
 
+        $existingCities = $this->_getExistingCities();
+        $citiesToDelete = array_diff(array_keys($existingCities), array_keys($cities));
+
+        if (count($citiesToDelete) > 0) {
+            $connection->delete($tableName, $citiesToDelete);
+            Mage::helper('novaposhta')->log(sprintf("Warehouses deleted: %s", implode(',', $citiesToDelete)));
+        }
+
         if (count($cities) > 0) {
-            $cities = array_chunk($cities, $this->_bulkSizeCity);
-            foreach ($cities as $chunk) {
-                $sql = 'INSERT INTO `novaposhta_city` (' . implode(', ', array_keys($chunk[0])) . ') VALUES ';
-                foreach ($chunk as $cityToInsert) {
-                    $sql .= '("' . implode('", "', $cityToInsert) . '"), ';
+            $tableName  = Mage::getSingleton('core/resource')->getTableName('novaposhta_city');
+            $connection = $this->_getConnection();
+            $connection->beginTransaction();
+            try {
+                foreach ($cities as $data) {
+                    $connection->insertOnDuplicate($tableName, $data);
                 }
-                $sql = trim($sql, ', ');
-                $sql .= ' ON DUPLICATE KEY UPDATE ';
-                foreach (array_keys($chunk[0]) as $field) {
-                    $sql .= "$field = VALUES($field), ";
-                }
-                $sql = trim($sql, ', ');
-                $this->_getConnection()->query($sql);
+                $connection->commit();
+            } catch (Exception $e) {
+                $connection->rollBack();
+                throw $e;
             }
         }
 
@@ -112,23 +112,14 @@ class Ak_NovaPoshta_Model_Import
     /**
      * @return array
      */
-    protected function &_getExistingCities()
+    protected function _getExistingCities()
     {
-        if (!$this->_exisitngCities) {
-            $existingCitiesTemp = Mage::getResourceModel('novaposhta/city_collection')->getSelect();
-            $existingCitiesTemp = $this->_getConnection()->query($existingCitiesTemp)->fetchAll();
-            if (empty($existingCitiesTemp)) {
-                $existingCitiesTemp = array();
-            }
-
-            $this->_exisitngCities = array();
-            foreach ($existingCitiesTemp as $existingCity) {
-                $this->_exisitngCities[$existingCity['id']] = $existingCity;
-            }
-
-            unset($existingCitiesTemp);
+        if (!$this->_existingCities) {
+            /** @var Ak_NovaPoshta_Model_Resource_City_Collection $collection */
+            $collection = Mage::getResourceModel('novaposhta/city_collection');
+            $this->_existingCities = $collection->getAllIds();
         }
-        return $this->_exisitngCities;
+        return $this->_existingCities;
     }
 
     /**
@@ -149,17 +140,16 @@ class Ak_NovaPoshta_Model_Import
     }
 
     /**
-     * @param SimpleXMLElement $apiObjects
-     * @param                  $map
-     *
+     * @param array $apiObjects
+     * @param array $map
      * @return array
      */
-    protected function _applyMap(SimpleXMLElement $apiObjects, $map)
+    protected function _applyMap(array $apiObjects, array $map)
     {
         $resultingArray = array();
         $idKey = array_search('id', $map);
         foreach ($apiObjects as $apiObject) {
-            $id = (string)$apiObject->$idKey;
+            $id = (string) $apiObject->$idKey;
             $resultingArray[$id] = array();
             foreach ($apiObject as $apiKey => $value) {
                 if (!isset($map[$apiKey])) {
@@ -181,12 +171,11 @@ class Ak_NovaPoshta_Model_Import
     }
 
     /**
-     * @param SimpleXMLElement $warehouses
-     *
-     * @throws Exception
+     * @param array $warehouses
      * @return bool
+     * @throws Exception
      */
-    protected function _importWarehouses(SimpleXMLElement $warehouses)
+    protected function _importWarehouses(array $warehouses)
     {
         if (empty($warehouses)) {
             Mage::helper('novaposhta')->log('No warehouses received');
@@ -197,29 +186,23 @@ class Ak_NovaPoshta_Model_Import
         $existingWarehouses = $this->_getExistingWarehouses();
         $warehousesToDelete = array_diff(array_keys($existingWarehouses), array_keys($warehouses));
 
+        $tableName  = Mage::getSingleton('core/resource')->getTableName('novaposhta_warehouse');
+        $connection = $this->_getConnection();
+
         if (count($warehousesToDelete) > 0) {
-            $warehousesToDelete = implode(', ', $warehousesToDelete);
-            $sql = "DELETE FROM `novaposhta_warehouse` WHERE `id` IN ($warehousesToDelete)";
-            $this->_getConnection()->query($sql);
-            Mage::helper('novaposhta')->log("Warehouses deleted: $warehousesToDelete");
+            $connection->delete($tableName, $warehousesToDelete);
+            Mage::helper('novaposhta')->log(sprintf("Warehouses deleted: %s", implode(',', $warehousesToDelete)));
         }
 
-        if (count($warehouses) > 0) {
-            $warehouses = array_chunk($warehouses, $this->_bulkSizeWarehouse);
-            foreach ($warehouses as &$chunk) {
-                $sql = 'INSERT INTO `novaposhta_warehouse` (' . implode(', ', array_keys($chunk[0])) . ') VALUES ';
-                foreach ($chunk as $warehouseToInsert) {
-                    $sql .= '("' . implode('", "', $warehouseToInsert) . '"), ';
-                }
-                $sql = trim($sql, ', ');
-                $sql .= ' ON DUPLICATE KEY UPDATE ';
-                foreach (array_keys($chunk[0]) as $field) {
-                    $sql .= "$field = VALUES($field), ";
-                }
-                $sql = trim($sql, ', ');
-                Mage::helper('novaposhta')->log($sql);
-                $this->_getConnection()->query($sql);
+        $connection->beginTransaction();
+        try {
+            foreach ($warehouses as $data) {
+                $connection->insertOnDuplicate($tableName, $data);
             }
+            $connection->commit();
+        } catch (Exception $e) {
+            $connection->rollBack();
+            throw $e;
         }
 
         return true;
@@ -228,22 +211,13 @@ class Ak_NovaPoshta_Model_Import
     /**
      * @return array
      */
-    protected function &_getExistingWarehouses()
+    protected function _getExistingWarehouses()
     {
-        if (!$this->_exisitngWarehouses) {
-            $existingWarehousesTemp = Mage::getResourceModel('novaposhta/warehouse_collection')->getSelect();
-            $existingWarehousesTemp = $this->_getConnection()->query($existingWarehousesTemp)->fetchAll();
-            if (empty($existingWarehousesTemp)) {
-                $existingWarehousesTemp = array();
-            }
-
-            $this->_exisitngWarehouses = array();
-            foreach ($existingWarehousesTemp as $existingWarehouse) {
-                $this->_exisitngWarehouses[$existingWarehouse['id']] = $existingWarehouse;
-            }
-
-            unset($existingWarehousesTemp);
+        if (!$this->_existingWarehouses) {
+            /** @var Ak_NovaPoshta_Model_Resource_Warehouse_Collection $collection */
+            $collection = Mage::getResourceModel('novaposhta/warehouse_collection');
+            $this->_existingWarehouses = $collection->getAllIds();
         }
-        return $this->_exisitngWarehouses;
+        return $this->_existingWarehouses;
     }
 }

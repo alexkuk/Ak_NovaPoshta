@@ -1,0 +1,108 @@
+<script type="text/javascript">
+    new (Class.create({
+        loadingImageUrl: '<?php echo $this->getSkinUrl('images/opc-ajax-loader.gif');?>',
+        initialize: function() {
+            this.bind('click', /^s_method.+$/i, this.onShippingChange);
+            this.bind('change', /^novaposhta-form-city-field$/i, this.onChangeCity);
+            this.bind('change', /^novaposhta-form-warehouse-field$/i, this.onChangeWarehouse);
+        },
+        bind: function(eventType, elementIdRegExp, cb) {
+            document.addEventListener(eventType, function (event) {
+                var el = event.target
+                    , found;
+                while (el && !(found = el.id.match(elementIdRegExp))) {
+                    el = el.parentElement;
+                }
+                if (found) {
+                    cb.call(this, el, event);
+                }
+            }.bind(this));
+        },
+        onShippingChange: function(el, event) {
+            var hideForm = true;
+            $$('#checkout-shipping-method-load input[type=radio]').each(function(el){
+                if (el.id.match(/^s_method_novaposhta/) && el.checked) {
+                    hideForm = false;
+                    this.showForm(el.parentNode);
+                }
+            }.bind(this));
+
+            if (hideForm) {
+                this.hideForm();
+            }
+        },
+        showForm: function(formContainer) {
+            this.showLoading(formContainer);
+            new Ajax.Request('<?php echo $this->getUrl('novaposhta/checkout/form')?>', {
+                onSuccess: function(response) {
+                    this.hideLoading();
+                    this.updateForm(response.responseText, formContainer);
+                }.bind(this)
+            });
+        },
+        hideForm: function () {
+            if ($('novaposhta-form')) {
+                Element.remove('novaposhta-form');
+            }
+        },
+        onChangeCity: function(el) {
+            this.showLoading();
+            new Ajax.Request('<?php echo $this->getUrl('novaposhta/checkout/form')?>', {
+                parameters: {city:el.value},
+                onSuccess: function(response) {
+                    this.hideLoading();
+                    this.updateForm(response.responseText);
+                }.bind(this)
+            });
+        },
+        onChangeWarehouse: function(el) {
+            this.showLoading();
+            new Ajax.Request('<?php echo $this->getUrl('novaposhta/checkout/calculate')?>', {
+                parameters: {warehouse:el.value},
+                onSuccess: function(response) {
+                    var result = eval('('+response.responseText+')');
+                    this.showDeliveryDateAndCost(result['delivery_date'], result['cost']);
+                    this.hideLoading();
+                }.bind(this)
+            });
+        },
+        updateForm: function(html, formContainer) {
+            var currentForm = $('novaposhta-form');
+            if (!formContainer && currentForm) {
+                formContainer = currentForm.parentNode;
+            }
+            if (!formContainer) {
+                return;
+            }
+            if (currentForm) {
+                currentForm.parentNode.removeChild(currentForm);
+            }
+            Element.insert(formContainer, html);
+        },
+        showLoading: function(formContainer) {
+            if (!formContainer) {
+                var currentForm = $('novaposhta-form');
+                if (currentForm) {
+                    formContainer = currentForm.parentNode;
+                }
+            }
+            if (!formContainer) {
+                return;
+            }
+
+            var dateAndCost = $('novaposhta-delivery-date-cost');
+            if (dateAndCost) {
+                dateAndCost.parentNode.removeChild(dateAndCost);
+            }
+
+            Element.insert(formContainer, '<p id="novaposhta-loading"><img src="'+this.loadingImageUrl+'" alt="" /> <span><?php echo $this->__('Loading, please wait...');?></span></p>');
+        },
+        hideLoading: function() {
+            Element.remove('novaposhta-loading');
+        },
+        showDeliveryDateAndCost: function(date, cost) {
+            var formContainer = $('novaposhta-form').parentNode;
+            Element.insert(formContainer, '<div id="novaposhta-delivery-date-cost"><p><span id="novaposhta-delivery-date"><span><?php echo $this->__('Delivery Date')?>:</span> <strong>'+date+'</strong></span></p><p><span id="novaposhta-delivery-cost"><span><?php echo $this->__('Shipping Price')?>:</span> <strong>'+cost+'</strong></span></p></div>');
+        }
+    }))();
+</script>

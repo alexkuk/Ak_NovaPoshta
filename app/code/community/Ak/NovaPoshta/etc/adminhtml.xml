@@ -10,7 +10,7 @@
                         <warehouses translate="title" module="novaposhta">
                             <sort_order>10</sort_order>
                             <title>Warehouses</title>
-                            <action>novaposhta/warehouses/</action>
+                            <action>adminhtml/novaposhta_warehouses/</action>
                         </warehouses>
                     </children>
                 </novaposhta>

@@ -40,10 +40,10 @@ class Ak_NovaPoshta_Block_Adminhtml_Warehouses_Grid extends Mage_Adminhtml_Block
 
         $this->addColumn('city_id',
             array(
-                 'header' => $this->__('City'),
-                 'index' => 'city_id',
-                 'type'  => 'options',
-                 'options' => Mage::getModel('novaposhta/city')->getOptionArray()
+                 'header'  => $this->__('City'),
+                 'index'   => 'city_id',
+                 'type'    => 'options',
+                 'options' => Mage::getResourceModel('novaposhta/city_collection')->toOptionArray()
             )
         );
 

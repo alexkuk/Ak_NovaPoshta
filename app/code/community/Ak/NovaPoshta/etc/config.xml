@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Ak_NovaPoshta>
-            <version>0.1.1</version>
+            <version>0.1.2</version>
         </Ak_NovaPoshta>
     </modules>
     <global>
@@ -20,6 +20,12 @@
                     <warehouse>
                         <table>novaposhta_warehouse</table>
                     </warehouse>
+                    <novaposhta_quote_address>
+                        <table>novaposhta_quote_address</table>
+                    </novaposhta_quote_address>
+                    <novaposhta_order_address>
+                        <table>novaposhta_order_address</table>
+                    </novaposhta_order_address>
                 </entities>
             </novaposhta_resource>
         </models>
@@ -40,16 +46,82 @@
                 </setup>
             </novaposhta_setup>
         </resources>
+        <events>
+            <sales_quote_address_collection_load_after>
+                <observers>
+                    <novaposhta_load_addres_collection_data>
+                        <type>singleton</type>
+                        <class>novaposhta/observer</class>
+                        <method>loadQuoteAddressCollectionData</method>
+                    </novaposhta_load_addres_collection_data>
+                </observers>
+            </sales_quote_address_collection_load_after>
+            <sales_quote_address_save_after>
+                <observers>
+                    <novaposhta_save_addres_data>
+                        <type>singleton</type>
+                        <class>novaposhta/observer</class>
+                        <method>saveQuoteAddressData</method>
+                    </novaposhta_save_addres_data>
+                </observers>
+            </sales_quote_address_save_after>
+            <sales_quote_address_load_after>
+                <observers>
+                    <novaposhta_load_addres_data>
+                        <type>singleton</type>
+                        <class>novaposhta/observer</class>
+                        <method>loadQuoteAddressData</method>
+                    </novaposhta_load_addres_data>
+                </observers>
+            </sales_quote_address_load_after>
+            <sales_order_address_save_after>
+                <observers>
+                    <novaposhta_save_addres_data>
+                        <type>singleton</type>
+                        <class>novaposhta/observer</class>
+                        <method>saveOrderAddressData</method>
+                    </novaposhta_save_addres_data>
+                </observers>
+            </sales_order_address_save_after>
+            <sales_order_address_load_after>
+                <observers>
+                    <novaposhta_load_addres_data>
+                        <type>singleton</type>
+                        <class>novaposhta/observer</class>
+                        <method>loadOrderAddressData</method>
+                    </novaposhta_load_addres_data>
+                </observers>
+            </sales_order_address_load_after>
+            <controller_action_predispatch_checkout_onepage_saveShippingMethod>
+                <observers>
+                    <novaposhta_load_addres_data>
+                        <type>singleton</type>
+                        <class>novaposhta/observer</class>
+                        <method>saveShippingMethodBefore</method>
+                    </novaposhta_load_addres_data>
+                </observers>
+            </controller_action_predispatch_checkout_onepage_saveShippingMethod>
+        </events>
+        <fieldsets>
+            <sales_convert_quote_address>
+                <warehouse_id>
+                    <to_order_address>*</to_order_address>
+                </warehouse_id>
+                <warehouse_label>
+                    <to_order_address>*</to_order_address>
+                </warehouse_label>
+            </sales_convert_quote_address>
+        </fieldsets>
     </global>
     <admin>
         <routers>
-            <novaposhta>
-                <use>admin</use>
+            <adminhtml>
                 <args>
-                    <module>Ak_NovaPoshta</module>
-                    <frontName>novaposhta</frontName>
+                    <modules>
+                        <Ak_NovaPoshta_Adminhtml before="Mage_Adminhtml">Ak_NovaPoshta_Adminhtml</Ak_NovaPoshta_Adminhtml>
+                    </modules>
                 </args>
-            </novaposhta>
+            </adminhtml>
         </routers>
     </admin>
     <crontab>
@@ -64,6 +136,27 @@
             </novaposhta_import_city_and_warehouse>
         </jobs>
     </crontab>
+    <frontend>
+        <routers>
+            <novaposhta>
+                <use>standard</use>
+                <args>
+                    <module>Ak_NovaPoshta</module>
+                    <frontName>novaposhta</frontName>
+                </args>
+            </novaposhta>
+        </routers>
+        <secure_url>
+            <novaposhta_checkout>/novaposhta/checkout</novaposhta_checkout>
+        </secure_url>
+        <layout>
+            <updates>
+                <novaposhta>
+                    <file>novaposhta.xml</file>
+                </novaposhta>
+            </updates>
+        </layout>
+    </frontend>
     <default>
         <carriers>
             <novaposhta>
@@ -81,6 +174,7 @@
                 <specificerrmsg>Этот способ доставки на текущий момент не доступен. Если вы желаете, чтобы мы доставили заказ Новой Почтой, обратитесь к менеджеру интернет-магазина.</specificerrmsg>
                 <api_url>http://orders.novaposhta.ua/xml.php</api_url>
                 <enable_log>0</enable_log>
+                <shipping_offset>1</shipping_offset>
             </novaposhta>
         </carriers>
     </default>

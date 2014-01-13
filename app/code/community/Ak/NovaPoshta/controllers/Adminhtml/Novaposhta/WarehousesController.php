@@ -1,6 +1,9 @@
 <?php
-class Ak_NovaPoshta_WarehousesController extends Mage_Adminhtml_Controller_Action
+class Ak_NovaPoshta_Adminhtml_Novaposhta_WarehousesController extends Mage_Adminhtml_Controller_Action
 {
+    /**
+     * @return $this
+     */
     public function indexAction()
     {
         $this->_title($this->__('Sales'))->_title($this->__('Nova Poshta Warehouses'));
@@ -12,10 +15,13 @@ class Ak_NovaPoshta_WarehousesController extends Mage_Adminhtml_Controller_Actio
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function synchronizeAction()
     {
         try {
-            Mage::getModel('novaposhta/import')->runWarehouseAndCityMassImport();
+            Mage::getModel('novaposhta/import')->run();
             $this->_getSession()->addSuccess($this->__('City and Warehouse API synchronization finished'));
         }
         catch (Exception $e) {
@@ -30,7 +36,7 @@ class Ak_NovaPoshta_WarehousesController extends Mage_Adminhtml_Controller_Actio
     /**
      * Initialize action
      *
-     * @return Ak_NovaPoshta_WarehousesController
+     * @return $this
      */
     protected function _initAction()
     {
