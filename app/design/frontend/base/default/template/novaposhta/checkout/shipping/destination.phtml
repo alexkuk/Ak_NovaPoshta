@@ -1,3 +1,32 @@
-<div id="novaposhta-form">
-    Coming soon...
-</div>
+<?php
+/** @var Ak_NovaPoshta_Block_Checkout_Shipping_Destination $this */
+$cityId = $this->getCityId();
+$warehouse = $this->getWarehouse();
+$warehouseId = $warehouse ? $warehouse->getId() : false;
+?>
+<ul id="novaposhta-form">
+    <li id="novaposhta-form-city-container" class="fields">
+        <label><?php echo $this->__('Please choose city:');?></label>
+        <div class="input-box">
+            <select class="validate-select" id="novaposhta-form-city-field" name="novaposhta_city">
+                <option value=""></option>
+                <?php foreach ($this->getCities() as $city): /** @var Ak_NovaPoshta_Model_City $city */ ?>
+                    <option <?php echo $city->getId() == $cityId ? 'selected="selected"' : ''?> value="<?php echo $city->getId();?>"><?php echo $city->getData('name_ru');?></option>
+                <?php endforeach;?>
+            </select>
+        </div>
+    </li>
+    <?php if ($warehouses = $this->getWarehouses()): ?>
+        <li id="novaposhta-form-warehouse-container" class="fields">
+            <label><?php echo $this->__('Please choose warehouse:');?></label>
+            <div class="input-box">
+                <select class="validate-select" id="novaposhta-form-warehouse-field" name="novaposhta_warehouse">
+                    <option value=""></option>
+                    <?php foreach ($warehouses as $warehouse): /** @var Ak_NovaPoshta_Model_Warehouse $warehouse */ ?>
+                        <option <?php echo $warehouse->getId() == $warehouseId ? 'selected="selected"' : ''?> value="<?php echo $warehouse->getId();?>"><?php echo $warehouse->getData('address_ru');?></option>
+                    <?php endforeach;?>
+                </select>
+            </div>
+        </li>
+    <?php endif;?>
+</ul>

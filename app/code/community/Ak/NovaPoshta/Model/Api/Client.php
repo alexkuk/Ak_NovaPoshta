@@ -3,6 +3,14 @@ class Ak_NovaPoshta_Model_Api_Client
 {
     protected $_httpClient;
 
+    const DELIVERY_TYPE_APARTMENT_APARTMENT = 1;
+    const DELIVERY_TYPE_APARTMENT_WAREHOUSE = 2;
+    const DELIVERY_TYPE_WAREHOUSE_APARTMENT = 3;
+    const DELIVERY_TYPE_WAREHOUSE_WAREHOUSE = 4;
+
+    const LOAD_TYPE_STANDARD   = 1;
+    const LOAD_TYPE_SECURITIES = 4;
+
     /**
      * @return string
      */
@@ -108,5 +116,39 @@ class Ak_NovaPoshta_Model_Api_Client
         ));
 
         return $responseXml->xpath('result/whs/warenhouse');
+    }
+
+    public function getShippingCost(
+        Zend_Date $deliveryDate,
+        Ak_NovaPoshta_Model_City $senderCity, Ak_NovaPoshta_Model_City $recipientCity,
+        $packageWeight, $packageLength, $packageWidth, $packageHeight, $publicPrice,
+        $deliveryType = self::DELIVERY_TYPE_WAREHOUSE_WAREHOUSE,
+        $loadType = self::LOAD_TYPE_STANDARD,
+        $floor = 0)
+    {
+        $response = $this->_makeRequest(array(
+            'countPrice' => array(
+                'date' => $deliveryDate->toString(Zend_Date::DATE_MEDIUM),
+                'senderCity' => $senderCity->getData('name_ru'),
+                'recipientCity' => $recipientCity->getData('name_ru'),
+                'mass' => $packageWeight,
+                'depth' => $packageLength,
+                'widht' => $packageWidth,
+                'height' => $packageHeight,
+                'publicPrice' => $publicPrice,
+                'deliveryType_id' => $deliveryType,
+                'loadType_id' => $loadType,
+                'floor_count' => $floor,
+            )
+        ));
+
+        if (1 == (int) $response->error) {
+            Mage::throwException('Novaposhta Api error');
+        }
+
+        return array (
+            'delivery_date' => (string) $response->date,
+            'cost' => (float) $response->cost,
+        );
     }
 }
