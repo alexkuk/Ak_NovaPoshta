@@ -74,6 +74,15 @@
                     </novaposhta_load_addres_data>
                 </observers>
             </sales_quote_address_load_after>
+            <sales_order_address_collection_load_after>
+                <observers>
+                    <novaposhta_load_addres_collection_data>
+                        <type>singleton</type>
+                        <class>novaposhta/observer</class>
+                        <method>loadOrderAddressCollectionData</method>
+                    </novaposhta_load_addres_collection_data>
+                </observers>
+            </sales_order_address_collection_load_after>
             <sales_order_address_save_after>
                 <observers>
                     <novaposhta_save_addres_data>
@@ -92,6 +101,15 @@
                     </novaposhta_load_addres_data>
                 </observers>
             </sales_order_address_load_after>
+            <sales_order_save_after>
+                <observers>
+                    <novaposhta_save_order_data>
+                        <type>singleton</type>
+                        <class>novaposhta/observer</class>
+                        <method>saveOrderData</method>
+                    </novaposhta_save_order_data>
+                </observers>
+            </sales_order_save_after>
             <controller_action_predispatch_checkout_onepage_saveShippingMethod>
                 <observers>
                     <novaposhta_load_addres_data>

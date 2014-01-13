@@ -18,7 +18,9 @@ class Ak_NovaPoshta_Model_Observer
         $select->where('address_id IN (?)', $addressCollection->getAllIds());
 
         foreach ($connection->fetchAll($select) as $row) {
-            $addressCollection->getItemById($row['address_id'])->setData('warehouse_id', $row['warehouse_id']);
+            $addressId = $row['address_id'];
+            unset($row['address_id']);
+            $addressCollection->getItemById($addressId)->addData($row);
         }
 
         return $this;
@@ -36,10 +38,13 @@ class Ak_NovaPoshta_Model_Observer
         $resource = Mage::getSingleton('core/resource');
         $connection = $resource->getConnection(Mage_Core_Model_Resource::DEFAULT_WRITE_RESOURCE);
         $select = $connection->select();
-        $select->from($resource->getTableName('novaposhta_quote_address'), 'warehouse_id');
+        $select->from($resource->getTableName('novaposhta_quote_address'));
         $select->where('address_id = ?', $address->getId());
 
-        $address->setData('warehouse_id', $connection->fetchOne($select));
+        if ($data = $connection->fetchRow($select)) {
+            unset($data['address_id']);
+            $address->addData($data);
+        }
 
         return $this;
     }
@@ -85,6 +90,31 @@ class Ak_NovaPoshta_Model_Observer
      * @param Varien_Event_Observer $observer
      * @return $this
      */
+    public function loadOrderAddressCollectionData(Varien_Event_Observer $observer)
+    {
+        /** @var Mage_Sales_Model_Resource_Order_Address_Collection $addressCollection */
+        $addressCollection = $observer->getData('order_address_collection');
+
+        /** @var Mage_Core_Model_Resource $resource */
+        $resource = Mage::getSingleton('core/resource');
+        $connection = $resource->getConnection(Mage_Core_Model_Resource::DEFAULT_WRITE_RESOURCE);
+        $select = $connection->select();
+        $select->from($resource->getTableName('novaposhta_order_address'));
+        $select->where('address_id IN (?)', $addressCollection->getAllIds());
+
+        foreach ($connection->fetchAll($select) as $row) {
+            $addressId = $row['address_id'];
+            unset($row['address_id']);
+            $addressCollection->getItemById($addressId)->addData($row);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Varien_Event_Observer $observer
+     * @return $this
+     */
     public function loadOrderAddressData(Varien_Event_Observer $observer)
     {
         /** @var Mage_Sales_Model_Order_Address $address */
@@ -93,10 +123,13 @@ class Ak_NovaPoshta_Model_Observer
         $resource = Mage::getSingleton('core/resource');
         $connection = $resource->getConnection(Mage_Core_Model_Resource::DEFAULT_WRITE_RESOURCE);
         $select = $connection->select();
-        $select->from($resource->getTableName('novaposhta_order_address'), 'warehouse_id');
+        $select->from($resource->getTableName('novaposhta_order_address'));
         $select->where('address_id = ?', $address->getId());
 
-        $address->setData('warehouse_id', $connection->fetchOne($select));
+        if ($data = $connection->fetchRow($select)) {
+            unset($data['address_id']);
+            $address->addData($data);
+        }
 
         return $this;
     }
@@ -133,6 +166,22 @@ class Ak_NovaPoshta_Model_Observer
             $connection->insertOnDuplicate($tableName, $data);
         } else {
             $connection->delete($tableName, sprintf('address_id = %d', $data['address_id']));
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Varien_Event_Observer $observer
+     * @return $this
+     */
+    public function saveOrderData(Varien_Event_Observer $observer)
+    {
+        /** @var Mage_Sales_Model_Order $order */
+        $order = $observer->getData('order');
+        if ($warehouseLabel = $order->getShippingAddress()->getData('warehouse_label')) {
+            $shippingDescription = $order->getData('shipping_description');
+            $order->setData('shipping_description', $shippingDescription . PHP_EOL . " ({$warehouseLabel}) ");
         }
 
         return $this;
