@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<layout version="1.0.0.0">
+    <checkout_onepage_index>
+        <reference name="content">
+            <block type="core/template" name="novaposhta_script" template="novaposhta/checkout/script.phtml" />
+        </reference>
+    </checkout_onepage_index>
+    <novaposhta_checkout_form>
+        <block type="novaposhta/checkout_shipping_destination" name="root" output="toHtml" template="novaposhta/checkout/shipping/destination.phtml"/>
+    </novaposhta_checkout_form>
+</layout>

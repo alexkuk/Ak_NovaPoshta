@@ -20,20 +20,24 @@ class Ak_NovaPoshta_Model_Carrier_NovaPoshta
         /** @var $result Mage_Shipping_Model_Rate_Result */
         $result = Mage::getModel('shipping/rate_result');
 
-        $shippingPrice = $this->_getDeliveryPriceByWeight($request->getPackageWeight());
-        if ($shippingPrice <= 0) {
-            return $result;
-        }
+        $shippingPrice = 0;
+        $deliveryType = Ak_NovaPoshta_Model_Api_Client::DELIVERY_TYPE_WAREHOUSE_WAREHOUSE;
 
-        $warehouseId = 1; // dummy warehouse ID
-        $warehouseName = 'Склад №1'; // dummy warehouse name
+        /** @var Mage_Sales_Model_Quote $quote */
+        $quote = Mage::getSingleton('checkout/session')->getQuote();
+        $warehouseId = $quote->getShippingAddress()->getData('warehouse_id');
+
+        if ($warehouseId) {
+            $shippingCost = Mage::helper('novaposhta')->getShippingCost($warehouseId, false);
+            $shippingPrice = $shippingCost['cost'];
+        }
 
         /** @var $method Mage_Shipping_Model_Rate_Result_Method */
         $method = Mage::getModel('shipping/rate_result_method');
         $method->setCarrier($this->_code)
             ->setCarrierTitle($this->getConfigData('name'))
-            ->setMethod('warehouse_' . $warehouseId)
-            ->setMethodTitle($warehouseName)
+            ->setMethod('type_'.$deliveryType)
+            ->setMethodTitle('Доставка до склада НовойПочты')
             ->setPrice($shippingPrice)
             ->setCost($shippingPrice);
 

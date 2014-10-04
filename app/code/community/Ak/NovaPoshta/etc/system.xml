@@ -64,15 +64,23 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </specificerrmsg>
-                        <weight_price translate="label">
-                            <label>Shipping price</label>
-                            <frontend_model>novaposhta/config_field_weightPrice</frontend_model>
-                            <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
-                            <sort_order>110</sort_order>
+                        <sender_city translate="label">
+                            <label>Sender City</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>novaposhta/system_config_city</source_model>
+                            <sort_order>35</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </weight_price>
+                        </sender_city>
+                        <shipping_offset translate="label">
+                            <label>Shipping Date Offset (Days)</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>36</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </shipping_offset>
                         <api_url translate="label">
                             <label>API URL</label>
                             <frontend_type>text</frontend_type>
@@ -86,14 +94,55 @@
                             <frontend_type>text</frontend_type>
                             <sort_order>130</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
+                            <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </api_key>
+                        <default_length>
+                            <label>Default Package Length (mm)</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </default_length>
+                        <default_width>
+                            <label>Default Package Width (mm)</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>150</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </default_width>
+                        <default_height>
+                            <label>Default Package Height (mm)</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>160</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </default_height>
+                        <default_weight>
+                            <label>Default Package Weight</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>170</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </default_weight>
+                        <include_postspay translate="label">
+                            <label>Include Postpay to Shipping</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>180</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </include_postspay>
                         <enable_log translate="label">
                             <label>Enable log</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>140</sort_order>
+                            <sort_order>200</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
