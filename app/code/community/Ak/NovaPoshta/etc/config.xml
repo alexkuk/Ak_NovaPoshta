@@ -149,7 +149,7 @@
                     <cron_expr>1 2 * * *</cron_expr>
                 </schedule>
                 <run>
-                    <model>ak_novaposhta/import::runWarehouseAndCityMassImport</model>
+                    <model>ak_novaposhta/import::run</model>
                 </run>
             </novaposhta_import_city_and_warehouse>
         </jobs>
