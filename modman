@@ -1,0 +1,7 @@
+#mapping for nova poshta
+
+app/code/community/* app/code/community/
+app/design/frontend/base/default/layout/novaposhta.xml app/design/frontend/base/default/layout/novaposhta.xml
+app/design/frontend/base/default/template/* app/design/frontend/base/default/template/
+
+shell/* shell/
