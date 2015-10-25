@@ -3,5 +3,6 @@
 app/code/community/* app/code/community/
 app/design/frontend/base/default/layout/novaposhta.xml app/design/frontend/base/default/layout/novaposhta.xml
 app/design/frontend/base/default/template/* app/design/frontend/base/default/template/
+app/etc/modules/Ak_NovaPoshta.xml app/etc/modules/Ak_NovaPoshta.xml
 
 shell/* shell/
